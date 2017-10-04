@@ -37,7 +37,7 @@ ui <- navbarPage("EcoCar",id="nav",
                             sliderInput(inputId = "fuelCost", label = "What is your max annual fuel expenditure", 
                                         min = 700, max=4350, value= 1000),
                             checkboxGroupInput("ecoF", label = h3("How would you like your car to be eco-friendly?"), 
-                                               choices = list("Nature lover" = 1, "Not concern" = 2, "Not at all" = 3),
+                                               choices = list("Natural Lover" = 1, "Green Car" = 2, "Kinda Green" = 3, "It's a monster" = 4),
                                                selected = 1),
                             sliderInput(inputId = "minCityMPG", label = "What is the min city mpg you want?", 
                                         min = 9, max=58,
@@ -95,7 +95,8 @@ server <- function(input, output) {
       Name = c("MaxBudget",
                "minCitympg"),
       Value = as.character(c(input$maxBudget,
-                             input$minCityMPG)),
+                             input$minCityMPG
+                             )),
       stringsAsFactors = FALSE
     )
   })
