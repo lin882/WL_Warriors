@@ -8,14 +8,14 @@ library(Rcpp)
 library(RInside)
 library(DT)
 
-setwd("C:\\Purdue University\\2017 Fall\\Using R for Analytics\\ProjectCar\\test4")
+setwd("C:\\Users\\Sunny Lin\\WL_Warriors")
 zipcode_table <- read.csv(file="zipcode_corrdinate.csv")
 
 
 ui <- navbarPage(theme = shinytheme("united"),
-                "EcoCar",id="nav",
+                 "EcoCar",id="nav",
                  tabPanel(theme = shinytheme("superhero"),
-                   "About EcoCar",
+                          "About EcoCar",
                           br(),
                           fluidRow(
                             column(4,
@@ -30,67 +30,73 @@ ui <- navbarPage(theme = shinytheme("united"),
                                    br(),
                                    p("Thank you for trusting EcoCar!"))
                             
-                          )
+                          ),
+                          tags$head(
+                            tags$style(paste0(
+                              "body:before { ",
+                              "  content: ''; ",
+                              "  height: 100%; width: 100%; ",
+                              "  position: fixed; ",
+                              "  z-index: -1; ",
+                              "  background: url(https://ppt.cc/fx3f2x) no-repeat center center fixed; ",
+                              "  background-size: cover; ",
+                              "  filter: opacity(30%); ",
+                              "  -webkit-filter: opacity(30%); }")))
                  ),
                  
                  
+                 
                  tabPanel(
-                          "Find your car",
-                          
-                          titlePanel("Finding a ideal car"),
-                          
-                          sidebarPanel(
-                            sliderInput(inputId = "maxBudget", label = h4("What is your max budget?"), 
-                                        min = 15000, max=70000,
-                                        value=20000),
-                            sliderInput(inputId = "fuelCost", label = h4("What is your max annual fuel cost?"), 
-                                        min = 700, max=4350, value= 1000),
-                            checkboxGroupInput("ecoF", label = h4("How would you like your car to be eco-friendly?"), 
-                                               choices = list("Nature Lover" = 1, "Green Car" = 2, "Kinda Gree" = 3, "It's a Monster" = 4),
-                                               selected = 1),
-                            sliderInput(inputId = "minCityMPG", label = h4("What is the min city mpg you want?"), 
-                                        min = 9, max=58,
-                                        value=34, step=1),
-                            sliderInput(inputId = "minHighwayMPG", label = h4("What is the min highway mpg you want?"), 
-                                        min = 11, max=59,
-                                        value=34, step=1),
-                            sliderInput(inputId = "displ", label = h4("Minimun engine displacement"), 
-                                        min = 0.9, max=8.4,
-                                        value=6.0),
-                            selectInput("cly", label = h4("Cylinders"), 
-                                        choices = list("3" = 3, "4" = 4, "5" = 5,"6" = 6,
-                                                       "8" = 8, "10" = 10, "12" = 12, "16" = 16), 
-                                        selected = 6),
-                            tags$head(
-                              tags$style(paste0(
-                                "body:before { ",
-                                "  content: ''; ",
-                                "  height: 100%; width: 100%; ",
-                                "  position: fixed; ",
-                                "  z-index: -1; ",
-                                "  background: url(https://ppt.cc/fx3f2x) no-repeat center center fixed; ",
-                                "  background-size: cover; ",
-                                "  filter: grayscale(50%); ",
-                                "  -webkit-filter: grayscale(50%); }")))
-                          ),
-                          mainPanel(
-                            tabsetPanel(
-                              id = 'dataset',
-                              tabPanel("Model list",
-                                       h4("Recommendation"),
-                                       dashboardBody(
-                                         tableOutput("values")),
-                                       fluidRow(
-                                         DT::dataTableOutput("Recom")
-                                                )
-                                       
-                                       ),
-                              
-                              tabPanel("Dealer map",
-                                       leafletOutput("map")
-                              )
-                            )
-                          )
+                   "Find your car",
+                   
+                   titlePanel("Finding your ideal car"),
+                   
+                   sidebarPanel(
+                     sliderInput(inputId = "maxBudget", label = h4("What is your max budget?"), 
+                                 min = 15000, max=70000,
+                                 value=60000),
+                     sliderInput(inputId = "fuelCost", label = h4("What is your max annual fuel cost?"), 
+                                 min = 700, max=4350, value= 4000),
+                     sliderInput(inputId = "ecoF", label = h4("How would you like your car to be eco-friendly?(1 is the most eco friendly)"), 
+                                 min = 1, max=3, value= 3),
+                     sliderInput(inputId = "minCityMPG", label = h4("What is the min city mpg you want?"), 
+                                 min = 9, max=58,
+                                 value=12, step=1),
+                     sliderInput(inputId = "minHighwayMPG", label = h4("What is the min highway mpg you want?"), 
+                                 min = 11, max=59,
+                                 value=12, step=1),
+                     sliderInput(inputId = "displ", label = h4("Minimun engine displacement"), 
+                                 min = 0.9, max=8.4,
+                                 value=3.0),
+                     numericInput("zipcode",label = h4("Input your Zipcode"), value = 47906)
+                     
+                   ),
+                   mainPanel(
+                     tabsetPanel(
+                       id = 'dataset',
+                       tabPanel("Model List",
+                                h3("Top 10 Best Models for You"),
+                                helpText('Here we are showing the top 10 vehicles for you. Make means the automaker, and Model means the model names.'), 
+                                dashboardBody(
+                                  tableOutput("values")),
+                                fluidRow(
+                                  DT::dataTableOutput("Recom")
+                                )
+                                
+                       ),
+                       
+                       tabPanel("Dealer on Map",
+                                h3("Further informatoin of the recommended car"),
+                                leafletOutput("map"),
+                                fluidRow(
+                                  column(8,
+                                         verbatimTextOutput("text"))
+                                  
+                                )
+                                
+                       )
+                     )
+                   )
                  )
 )
 
@@ -112,6 +118,13 @@ server <- function(input, output) {
     summary <- summary[summary$highway08 > input$minHighwayMPG,]
     summary <- summary[summary$displ > input$displ,]
     
+    if (input$ecoF == 1){
+      summary <- summary[summary$ecoFriendly == "Nature Lover",]
+    } else if (input$ecoF == 2){
+      summary <- summary[summary$ecoFriendly == "Nature Lover" |summary$ecoFriendly == "Green Car" |summary$ecoFriendly == "Kinda Green" ,]
+    } else {
+      summary <- summary
+    }
     
     
     ## Normalization
@@ -130,35 +143,24 @@ server <- function(input, output) {
     summary$final_score <- summary$normal_Price**2 + summary$normal_fuel**2 + summary$normal_cityMPG**2 + summary$normal_highwayMPG**2
     summary.final <-summary[order(summary$final_score, decreasing = TRUE),]
     
+    
+    
   })
   
-  sliderValues <- reactive({
-    data.frame(
-      Automaker = c("MaxBudget",
-               "minCitympg",
-               "Automaker"),
-      Model = as.character(c(input$maxBudget,
-                             input$minCityMPG,
-                             select()$make[1]
-                             )),
-      stringsAsFactors = FALSE
-    )
+  output$Recom <- DT::renderDataTable({
+    
+    Select_DT = as.data.frame(select())
+    rownames(Select_DT) <- NULL
+    DT::datatable(Select_DT[1:11,2:3])
   })
-  output$values <- renderTable({
-    sliderValues()
-  })
-  
-  
   
   
   output$map <- renderLeaflet({
     
-
-    
     dealers <- read.csv(file="Dealer.csv")
     
     Recom_model <- as.character(select()$make[1])
-    zipcode = 47906
+    zipcode = input$zipcode
     
     Dealer_zip <- dealers[dealers$Make == Recom_model,]
     Dealer_lat <- zipcode_table[zipcode_table$zip == Dealer_zip$Zipcode,][2]
@@ -180,11 +182,21 @@ server <- function(input, output) {
       addPopups(lat = Dealer_lat$Latitude, lng = Dealer_lon$Longitude, Dealer_con$Content,
                 options = popupOptions(closeButton = FALSE))
   })
-  output$Recom <- DT::renderDataTable({
+  
+  output$text <- renderText({
+    dealers <- read.csv(file="Dealer.csv")
+    Recom_model <- as.character(select()$make[1])
+    Dealer_con <- dealers[dealers$Make == Recom_model,][3]
+    Select_DT = as.data.frame(select())
     
-    DT::datatable(as.data.frame(select()))
+    
+    paste0("The automaker for the best model is" ," ",Select_DT[1,2], "\n","Above information is the dealer information near your location")
+    
+    
+    
   })
-    
+  
+  
 }
 
 shinyApp(ui = ui, server = server)
