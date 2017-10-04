@@ -6,6 +6,7 @@ library(leaflet)
 library(shinythemes)
 library(Rcpp)
 library(RInside)
+library(DT)
 
 setwd("C:\\Purdue University\\2017 Fall\\Using R for Analytics\\ProjectCar\\test4")
 zipcode_table <- read.csv(file="zipcode_corrdinate.csv")
@@ -74,10 +75,14 @@ ui <- navbarPage(theme = shinytheme("united"),
                           ),
                           mainPanel(
                             tabsetPanel(
+                              id = 'dataset',
                               tabPanel("Model list",
                                        h4("Recommendation"),
                                        dashboardBody(
-                                         tableOutput("values"))
+                                         tableOutput("values")),
+                                       fluidRow(
+                                         DT::dataTableOutput("Recom")
+                                                )
                                        
                                        ),
                               
@@ -123,7 +128,7 @@ server <- function(input, output) {
     summary$normal_highwayMPG <- ((summary$highway08 - input$minHighwayMPG) / mean_highwayMPG)
     
     summary$final_score <- summary$normal_Price**2 + summary$normal_fuel**2 + summary$normal_cityMPG**2 + summary$normal_highwayMPG**2
-    summary <-summary[order(summary$final_score, decreasing = TRUE),]
+    summary.final <-summary[order(summary$final_score, decreasing = TRUE),]
     
   })
   
@@ -175,7 +180,10 @@ server <- function(input, output) {
       addPopups(lat = Dealer_lat$Latitude, lng = Dealer_lon$Longitude, Dealer_con$Content,
                 options = popupOptions(closeButton = FALSE))
   })
-  
+  output$Recom <- DT::renderDataTable({
+    
+    DT::datatable(as.data.frame(select()))
+  })
     
 }
 
