@@ -1,0 +1,9 @@
+field,description
+efid ,engine family ID
+id ,vehicle record ID (links emission data to the vehicle record)
+salesArea ,EPA sales area code
+score ,EPA 1-10 smog rating for fuelType1
+scoreAlt ,EPA 1-10 smog rating for fuelType2
+smartwayScore ,SmartWay Code
+standard ,Vehicle Emission Standard Code
+stdText ,Vehicle Emission Standard
