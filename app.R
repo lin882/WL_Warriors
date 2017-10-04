@@ -2,7 +2,7 @@ library(shiny)
 #install.packages("shinydashboard", dependencies = T)
 library(shinydashboard)
 
-setwd("C:\\Purdue University\\2017 Fall\\Using R for Analytics\\ProjectCar\\test4")
+#setwd("C:\\Purdue University\\2017 Fall\\Using R for Analytics\\ProjectCar\\test4")
 zipcode_table <- read.csv(file="zipcode_corrdinate.csv")
 
 
@@ -37,7 +37,7 @@ ui <- navbarPage("EcoCar",id="nav",
                             sliderInput(inputId = "fuelCost", label = "What is your max annual fuel expenditure", 
                                         min = 700, max=4350, value= 1000),
                             checkboxGroupInput("ecoF", label = h3("How would you like your car to be eco-friendly?"), 
-                                               choices = list("Natural Lover" = 1, "Green Car" = 2, "Kinda Green" = 3, "It's a monster" = 4),
+                                               choices = list("Nature lover" = 1, "Not concern" = 2, "Not at all" = 3),
                                                selected = 1),
                             sliderInput(inputId = "minCityMPG", label = "What is the min city mpg you want?", 
                                         min = 9, max=58,
@@ -85,31 +85,12 @@ ui <- navbarPage("EcoCar",id="nav",
 
 
 
+newVehicle = read.csv(file="newV.csv")
+
 
 server <- function(input, output) {
   
-  
-  
-  sliderValues <- reactive({
-    data.frame(
-      Name = c("MaxBudget",
-               "minCitympg"),
-      Value = as.character(c(input$maxBudget,
-                             input$minCityMPG
-                             )),
-      stringsAsFactors = FALSE
-    )
-  })
-  output$values <- renderTable({
-    sliderValues()
-  })
-  
-  
-  
-  
-  output$map <- renderLeaflet({
-    
-    newVehicle <- read.csv(file="newV.csv")
+  select <- reactive({
     
     summary <- newVehicle[newVehicle$Price < input$maxBudget,]
     summary <- summary[summary$fuelCost08 < input$fuelCost,]
@@ -135,9 +116,31 @@ server <- function(input, output) {
     summary$final_score <- summary$normal_Price**2 + summary$normal_fuel**2 + summary$normal_cityMPG**2 + summary$normal_highwayMPG**2
     summary <-summary[order(summary$final_score, decreasing = TRUE),]
     
+  })
+  
+  sliderValues <- reactive({
+    data.frame(
+      Name = c("MaxBudget",
+               "minCitympg"),
+      Value = as.character(c(input$maxBudget,
+                             input$minCityMPG)),
+      stringsAsFactors = FALSE
+    )
+  })
+  output$values <- renderTable({
+    sliderValues()
+  })
+  
+  
+  
+  
+  output$map <- renderLeaflet({
+    
+    
+    
     dealers <- read.csv(file="Dealer.csv")
     
-    Recom_model <- summary$make[1]
+    Recom_model <- as.character(select()$make[1])
     zipcode = 47906
     
     Dealer_zip <- dealers[dealers$Make == Recom_model,]
