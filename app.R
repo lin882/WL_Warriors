@@ -8,7 +8,7 @@ library(Rcpp)
 library(RInside)
 library(DT)
 
-setwd("C:\\Users\\Sunny Lin\\WL_Warriors")
+setwd("C:\\Purdue University\\2017 Fall\\Using R for Analytics\\ProjectCar\\test5")
 zipcode_table <- read.csv(file="zipcode_corrdinate.csv")
 
 
