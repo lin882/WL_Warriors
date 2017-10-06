@@ -1,15 +1,11 @@
 library(shiny)
-#install.packages("shinydashboard", dependencies = T)
-#install.packages("shinythemes", dependencies = T)
-library(shinydashboard)
 library(leaflet)
 library(shinythemes)
 library(Rcpp)
 library(RInside)
 library(DT)
 
-setwd("C:\\Purdue University\\2017 Fall\\Using R for Analytics\\ProjectCar\\test5")
-zipcode_table <- read.csv(file="zipcode_corrdinate.csv")
+zipcode_table <- read.csv(file="data/zipcode_corrdinate.csv")
 
 
 ui <- navbarPage(theme = shinytheme("united"),
@@ -77,8 +73,7 @@ ui <- navbarPage(theme = shinytheme("united"),
                        tabPanel("Model List",
                                 h3("Top 10 Best Models for You"),
                                 helpText('Here we are showing the top 10 vehicles for you. Make means the automaker, and Model means the model names.'), 
-                                dashboardBody(
-                                  tableOutput("values")),
+                                tableOutput("values"),
                                 fluidRow(
                                   DT::dataTableOutput("Recom")
                                 )
@@ -105,7 +100,7 @@ ui <- navbarPage(theme = shinytheme("united"),
 
 
 
-newVehicle = read.csv(file="newV.csv")
+newVehicle = read.csv(file="data/newV.csv")
 
 
 server <- function(input, output) {
@@ -157,7 +152,7 @@ server <- function(input, output) {
   
   output$map <- renderLeaflet({
     
-    dealers <- read.csv(file="Dealer.csv")
+    dealers <- read.csv(file="data/Dealer.csv")
     
     Recom_model <- as.character(select()$make[1])
     zipcode = input$zipcode
