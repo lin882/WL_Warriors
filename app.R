@@ -179,7 +179,7 @@ server <- function(input, output) {
   })
   
   output$text <- renderText({
-    dealers <- read.csv(file="Dealer.csv")
+    dealers <- read.csv(file="data/Dealer.csv")
     Recom_model <- as.character(select()$make[1])
     Dealer_con <- dealers[dealers$Make == Recom_model,][3]
     Select_DT = as.data.frame(select())
